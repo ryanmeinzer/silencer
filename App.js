@@ -4,7 +4,7 @@ import { Audio } from 'expo-av';
 
 export default function App() {
   const [recording, setRecording] = useState(null);
-  const [whiteNoiseSound, setWhiteNoiseSound] = useState(null);
+  const [sound, setSound] = useState(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [isMonitoring, setIsMonitoring] = useState(false);
 
@@ -21,46 +21,46 @@ export default function App() {
         // https://docs.expo.dev/versions/latest/sdk/audio/#playing-or-recording-audio-in-background
         staysActiveInBackground: true,
       });
-
-      console.log('Starting recording..');
       const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
       setRecording(recording);
       console.log('Recording started');
-      monitorRecording(recording);
       setIsMonitoring(true);
+      recording.setOnRecordingStatusUpdate((status) => {
+        if (status.isRecording && status.metering > -30) { 
+          console.log('threshold triggered')
+          playWhiteNoise(recording)
+        }
+      });
     } catch (err) {
       console.error('Failed to start recording', err);
     }
   }
 
-  function monitorRecording(recording) {
-    recording.setOnRecordingStatusUpdate((status) => {
-      // console.log('monitorRecording() -> status:', status);
-      if (status.isRecording && status.metering > -30) { 
-        console.log('threshold triggered')
-        // ToDo - allowsRecordingIOS: false to enhance audio by nearly 2x
-        // stopRecording()
-        playWhiteNoise();
-        // ToDo - re-enable after whiteSound plays, likely need to use playback status
-        // startRecording()
-      }
-    });
-  }
-
-  // ToDo - allowsRecordingIOS: false to enhance audio by nearly 2x
-  async function playWhiteNoise() {
+  async function playWhiteNoise(recording) {
     const { sound } = await Audio.Sound.createAsync(
       require('../silencer/white_noise.mp3'),
       // ToDo - experiment if below is even needed
       // { shouldPlay: true, playsInSilentModeIOS: true }
     );
-    setWhiteNoiseSound(sound);
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: true,
+    });
+    setSound(sound);
     console.log('Playing Sound');
     await sound.playAsync();
+    await stopRecording(recording)
+    sound.setOnPlaybackStatusUpdate(async (status) => {
+      if (status.didJustFinish) {
+        console.log('Audio playback finished');
+        await startRecording();
+      }
+    });
   }
 
-  async function stopRecording() {
+  async function stopRecording(recording) {
     console.log('Stopping recording..');
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
@@ -74,19 +74,19 @@ export default function App() {
   }
 
   useEffect(() => {
-    return whiteNoiseSound
+    return sound
       ? () => {
           console.log('Unloading Sound');
-          whiteNoiseSound.unloadAsync();
+          sound.unloadAsync();
         }
       : undefined;
-  }, [whiteNoiseSound]);
+  }, [sound]);
 
-  const toggleMonitoring = () => {
+  const toggleMonitoring = async () => {
     if (isMonitoring) {
-      stopRecording();
+      await stopRecording(recording);
     } else {
-      startRecording()
+      await startRecording()
     }
   };
 
