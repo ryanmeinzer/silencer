@@ -72,6 +72,7 @@ export default function App() {
     }
   }
 
+  // ToDo - allowsRecordingIOS: false to enhance audio by nearly 2x
   async function playWhiteNoise() {
     console.log('whiteNoiseSound:', whiteNoiseSound);
     if (!whiteNoiseSound) {
