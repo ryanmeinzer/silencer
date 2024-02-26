@@ -8,7 +8,7 @@ I built Silencer.ai to proactively mask noise pollution by fading white noise 
 
 ## Use
 
-Go to http://silencer.ai for the download link for either the iPhone or the Android app!
+Soon, you can go to http://silencer.ai for the download link for either the iPhone or the Android app!
 
 Frontend Code Repository - https://github.com/ryanmeinzer/silencer
 
