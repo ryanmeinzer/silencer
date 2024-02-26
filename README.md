@@ -18,7 +18,7 @@ Start the app to have it automatically detect unwanted noise, that it will mask 
 
 ## Future Features
 
-Silencer.ai begins with noise masking, but ends with active noise cancellation for everyone's peace on this planet. Our evolving sound map dataset will enable us to serve users hyper locally through proactive software technology and communal efforts. Our active noise cancellation hardware + software tech will eliminate noise pollution altogether, without the crutch of white noise for masking.
+Silencer.ai begins with noise masking, but ends with active noise cancellation for everyone's peace on this planet. Our evolving sound map dataset will enable us to serve users hyper locally through proactive software technology and communal efforts. Our active noise cancellation hardware + software will eliminate noise pollution altogether, without the crutch of white noise for masking.
 
 ## Screenshot
 
