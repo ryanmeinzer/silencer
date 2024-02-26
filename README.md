@@ -1,5 +1,7 @@
 # Silencer.ai
 
+## Technical Description
+
 I built Silencer.ai to proactively mask noise pollution by fading white noise in and out through your phone's speakers adaptively based on its detected sound mapping memory from your phone's microphones.
 
 ## Use
