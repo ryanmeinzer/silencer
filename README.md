@@ -1,6 +1,6 @@
 # Silencer.ai
 
-Silencer.ai is an app that turns your phone into a smart white noise machine. It learns over time to keep your environment peaceful by using your phone's speakers to block unwanted noise.
+Silencer.ai is an app that turns your phone into a smart white noise machine. It learns over time to keep your environment peaceful by using your phone’s microphone, memory and speakers to block unwanted noise.
 
 ## Technical Description
 
