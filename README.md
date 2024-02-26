@@ -12,6 +12,10 @@ Frontend Code Repository - https://github.com/ryanmeinzer/silencer
 
 Start monitoring in the app to have it automatically detect sound that it will mask with pleasant white noise, faded in and out so that you won't even notice/awake. It memorizes such noises, so that it will proactively mask them in the future. Sleep like a baby. 👶🏻💤
 
+## Future Features
+
+Silencer.ai begins with sound/noise masking, but ends with active noise cancellation. Our evolving sound map will enable us to serve hyper locally through proactive technology and community efforts. Our active noise cancellation tech will eliminate noise pollution altogether, without the crutch of white noise for masking.
+
 ## Screenshot
 
 WIP
