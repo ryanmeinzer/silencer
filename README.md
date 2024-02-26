@@ -14,7 +14,7 @@ Frontend Code Repository - https://github.com/ryanmeinzer/silencer
 
 ## Features
 
-Start monitoring in the app to have it automatically detect noise that it will mask with peaceful white noise, faded in and out so that you won't even notice/awake. It memorizes noise disturbances, so that it will proactively mask them in the future. Sleep like a baby. 👶🏻💤
+Start the app to have it automatically detect unwanted noise, that it will mask with peaceful white noise, faded in and out so that you won't even notice/awake. It remembers recurring unwanted noise, to proactively block it in the future. Sleep like a baby. 👶🏻💤
 
 ## Future Features
 
