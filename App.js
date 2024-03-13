@@ -50,14 +50,42 @@ export default function App() {
     });
     setSound(sound);
     console.log('Playing Sound');
+    // Set initial volume to 0
+    await sound.setVolumeAsync(0);
     await sound.playAsync();
-    await stopRecording(recording)
-    sound.setOnPlaybackStatusUpdate(async (status) => {
-      if (status.didJustFinish) {
-        console.log('Audio playback finished');
-        await startRecording();
-      }
-    });
+
+    // Helper function to change volume and apply delay
+    async function changeVolume(sound, volume, delay) {
+      await sound.setVolumeAsync(volume);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    // Helper function to check volume
+    async function checkVolume(sound) {
+      const status = await sound.getStatusAsync();
+      console.log('Current volume:', status.volume);
+    }
+
+    // Fade in with the most subtle volume increases possible over ~20 seconds (ToDo - increase for launch)
+    for (let volume = 0; volume <= 1; volume += 0.001) {
+      await changeVolume(sound, volume, 10); 
+      await checkVolume(sound)
+    }
+    console.log('Audio fade in finished');
+
+    // Wait for 1 second (ToDo - make 10 minutes with 600000 for launch)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await checkVolume(sound)
+    console.log('10 seconds wait finished')
+
+    // Fade out with the most subtle volume decreases possible over ~20 seconds (ToDo - increase for launch)
+    for (let volume = 1; volume >= 0; volume -= 0.001) {
+      await changeVolume(sound, volume, 10);
+      await checkVolume(sound)
+    }
+    console.log('Audio fade out finished');
+    await stopRecording(recording); // Stop the recording
+    await startRecording(); // Start a new recording
   }
 
   async function stopRecording(recording) {
