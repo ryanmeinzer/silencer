@@ -3,10 +3,9 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import { Audio } from 'expo-av';
 
 export default function App() {
-  const [recording, setRecording] = useState(null);
-  const [sound, setSound] = useState(null);
+  const [recording, setRecording] = useState();
+  const [sound, setSound] = useState();
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [isMonitoring, setIsMonitoring] = useState(false);
 
   async function startRecording() {
     try {
@@ -25,7 +24,6 @@ export default function App() {
       );
       setRecording(recording);
       console.log('Recording started');
-      setIsMonitoring(true);
       recording.setOnRecordingStatusUpdate((status) => {
         if (status.isRecording && status.metering > -30) { 
           console.log('threshold triggered')
@@ -63,7 +61,7 @@ export default function App() {
     // Helper function to check volume
     async function checkVolume(sound) {
       const status = await sound.getStatusAsync();
-      console.log('Current volume:', status.volume);
+      // console.log('Current volume:', status.volume);
     }
 
     // Fade in with the most subtle volume increases possible over ~20 seconds (ToDo - increase for launch)
@@ -84,23 +82,28 @@ export default function App() {
       await checkVolume(sound)
     }
     console.log('Audio fade out finished');
-    await stopRecording(recording); // Stop the recording
+    await stopRecording(recording, sound); // Stop the recording and sound
     await startRecording(); // Start a new recording
   }
 
-  async function stopRecording(recording) {
+  async function stopRecording(recording, sound) {
     console.log('Stopping recording..');
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
+    if (sound) {
+      await sound.stopAsync()
+      await sound.unloadAsync()
+    }
     // iOS reroutes audio playback to phone earpiece instead of speaker with allowsRecordingIOS, so disable when playing whiteNoise and once finished
     await Audio.setAudioModeAsync(
       {
         allowsRecordingIOS: false,
       }
     );
-    setIsMonitoring(false)
   }
 
+  // ToDo - refine this perhaps to only unload when shutting down app entirely
+  // unload sound after using it
   useEffect(() => {
     return sound
       ? () => {
@@ -110,8 +113,9 @@ export default function App() {
       : undefined;
   }, [sound]);
 
-  const toggleMonitoring = async () => {
-    if (isMonitoring) {
+  // ToDo - stop sound if clicking to Stop Monitoring
+  const toggleRecording = async () => {
+    if (recording) {
       await stopRecording(recording);
     } else {
       await startRecording()
@@ -122,8 +126,8 @@ export default function App() {
     <View style={styles.container}>
       <Text>Silencer.ai</Text>
       <Button
-        onPress={toggleMonitoring}
-        title={isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
+        title={recording ? 'Stop Monitoring' : 'Start Monitoring'}
+        onPress={toggleRecording}
       />
     </View>
   );
