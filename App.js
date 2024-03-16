@@ -82,24 +82,37 @@ export default function App() {
       await checkVolume(sound)
     }
     console.log('Audio fade out finished');
-    await stopRecording(recording, sound); // Stop the recording and sound
-    await startRecording(); // Start a new recording
+    const status = await recording.getStatusAsync();
+    // If manually Stop Monitoring, prevent stopRecording from running twice but stop and unload sound
+    if (!status.isDoneRecording) {
+      await stopRecording(recording, sound); // Stop the recording and sound
+      await startRecording(); // Start a new recording
+    } else {
+      if (sound) {
+        await sound.stopAsync()
+        await sound.unloadAsync()
+      }
+    }
   }
 
   async function stopRecording(recording, sound) {
-    console.log('Stopping recording..');
-    setRecording(undefined);
-    await recording.stopAndUnloadAsync();
-    if (sound) {
-      await sound.stopAsync()
-      await sound.unloadAsync()
-    }
-    // iOS reroutes audio playback to phone earpiece instead of speaker with allowsRecordingIOS, so disable when playing whiteNoise and once finished
-    await Audio.setAudioModeAsync(
-      {
-        allowsRecordingIOS: false,
+    try {
+      console.log('Stopping recording..');
+      setRecording(undefined);
+      await recording.stopAndUnloadAsync();
+      if (sound) {
+        await sound.stopAsync()
+        await sound.unloadAsync()
       }
-    );
+      // iOS reroutes audio playback to phone earpiece instead of speaker with allowsRecordingIOS, so disable when playing whiteNoise and once finished
+      await Audio.setAudioModeAsync(
+        {
+          allowsRecordingIOS: false,
+        }
+      );
+    } catch (err) {
+      console.error('Failed to stop recording', err);
+    }
   }
 
   // ToDo - refine this perhaps to only unload when shutting down app entirely
