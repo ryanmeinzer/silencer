@@ -25,6 +25,7 @@ export default function App() {
       setRecording(recording);
       console.log('Recording started');
       recording.setOnRecordingStatusUpdate((status) => {
+        // ToDo - potentially increase sensitivity of noise detection for launch
         if (status.isRecording && status.metering > -30) { 
           console.log('threshold triggered')
           playWhiteNoise(recording)
@@ -65,20 +66,20 @@ export default function App() {
     }
 
     // Fade in with the most subtle volume increases possible over ~20 seconds (ToDo - increase for launch)
-    for (let volume = 0; volume <= 1; volume += 0.01) {
-      await changeVolume(sound, volume, 1); 
+    for (let volume = 0; volume <= 1; volume += 0.001) {
+      await changeVolume(sound, volume, 10); 
       await checkVolume(sound)
     }
     console.log('Audio fade in finished');
 
     // Wait for 1 second (ToDo - make 10 minutes with 600000 for launch)
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await checkVolume(sound)
     console.log('10 seconds wait finished')
 
     // Fade out with the most subtle volume decreases possible over ~20 seconds (ToDo - increase for launch)
-    for (let volume = 1; volume >= 0; volume -= 0.01) {
-      await changeVolume(sound, volume, 1);
+    for (let volume = 1; volume >= 0; volume -= 0.001) {
+      await changeVolume(sound, volume, 10);
       await checkVolume(sound)
     }
     console.log('Audio fade out finished');
