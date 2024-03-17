@@ -39,7 +39,7 @@ export default function App() {
     const { sound } = await Audio.Sound.createAsync(
       require('../silencer/white_noise.mp3'),
       // ToDo - experiment if below is even needed
-      // { shouldPlay: true, playsInSilentModeIOS: true }
+      { shouldPlay: true, playsInSilentModeIOS: true }
     );
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
@@ -65,32 +65,31 @@ export default function App() {
     }
 
     // Fade in with the most subtle volume increases possible over ~20 seconds (ToDo - increase for launch)
-    for (let volume = 0; volume <= 1; volume += 0.001) {
-      await changeVolume(sound, volume, 10); 
+    for (let volume = 0; volume <= 1; volume += 0.01) {
+      await changeVolume(sound, volume, 1); 
       await checkVolume(sound)
     }
     console.log('Audio fade in finished');
 
     // Wait for 1 second (ToDo - make 10 minutes with 600000 for launch)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 10));
     await checkVolume(sound)
     console.log('10 seconds wait finished')
 
     // Fade out with the most subtle volume decreases possible over ~20 seconds (ToDo - increase for launch)
-    for (let volume = 1; volume >= 0; volume -= 0.001) {
-      await changeVolume(sound, volume, 10);
+    for (let volume = 1; volume >= 0; volume -= 0.01) {
+      await changeVolume(sound, volume, 1);
       await checkVolume(sound)
     }
     console.log('Audio fade out finished');
     const status = await recording.getStatusAsync();
-    // If manually Stop Monitoring, prevent stopRecording from running twice but stop and unload sound
+    // If manually Stop Monitoring, prevent stopRecording from running twice but stop sound
     if (!status.isDoneRecording) {
       await stopRecording(recording, sound); // Stop the recording and sound
       await startRecording(); // Start a new recording
     } else {
       if (sound) {
         await sound.stopAsync()
-        await sound.unloadAsync()
       }
     }
   }
@@ -102,7 +101,6 @@ export default function App() {
       await recording.stopAndUnloadAsync();
       if (sound) {
         await sound.stopAsync()
-        await sound.unloadAsync()
       }
       // iOS reroutes audio playback to phone earpiece instead of speaker with allowsRecordingIOS, so disable when playing whiteNoise and once finished
       await Audio.setAudioModeAsync(
@@ -115,21 +113,20 @@ export default function App() {
     }
   }
 
-  // ToDo - refine this perhaps to only unload when shutting down app entirely
-  // unload sound after using it
+  // unload sound after when component unmounts (cleanup)
   useEffect(() => {
-    return sound
-      ? () => {
-          console.log('Unloading Sound');
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
+    return () => {
+      if (sound) {
+        console.log('Unloading Sound');
+        sound.unloadAsync();
+      }
+    };
+  }, []);
 
-  // ToDo - stop sound if clicking to Stop Monitoring
   const toggleRecording = async () => {
     if (recording) {
-      await stopRecording(recording);
+      // ensure the correct sound object is passed
+      await stopRecording(recording, sound);
     } else {
       await startRecording()
     }
